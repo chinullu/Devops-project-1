@@ -1,0 +1,80 @@
+>>>>From my workstation
+
+knife cookbook create webserver 
+     
+ $source = 'c:\cfn\downloads\default.rb' 
+$dest = 'c:\chef-repo\cookbooks\webserver\recipes' 
+Copy-Item -Path $source -Destination $dest 
+ 
+$source = 'c:\cfn\downloads\index.html'
+ $dest = 'c:\chef-repo\cookbooks\webserver\files'
+ Copy-Item -Path $source -Destination $dest  
+
+>>>>in default.rb file 
+#Run apt-get update
+
+execute “apt-get update” do
+       command “apt-get update”
+end
+
+#Install apache
+
+package “apache2” do
+         action : install
+end
+
+#start apache service and enable service
+
+service “apache2” do
+          action [ :start, :enable]
+end
+
+cookbook_file “/var/www/html/index.html” do
+               source “index.html”
+               mode “0644”
+end
+>>>>> from your workstation CLI
+
+knife cookbook upload webserver                 
+
+knife bootstrap x.x.x.x 
+   --ssh-user ubuntu 
+  --sudo 
+  --identity-file ./.chef/mykey.pem 
+  --run-list webserver   
+curl https://nodeIP
+
+>>>> SSH to AWS web server...rom the command line 
+
+ 
+Sudo mkdir /etc/httpd/conf.d/ssl
+
+Cd  ssl
+
+Openssl req –x509 –nodes –days  365 –newkey  rsa:2048 –keyout /etc/httpd/conf.d/ssl/apache.key –out /etc/apache2/ssl/apache.cert
+
+Cd /etc/httpd/httpd.conf
+Cd mods_available
+Sudo a2enmod ssl
+Cd sites-available
+
+Sudo vim default-ssl.conf
+
+// <VitualHost  :*443>
+
+documentRoot /var/www/html/index.html
+SSLCertificateFile   /etc/apache2/ssl/apache.cert
+SSLCertificateFile   /etc/apache2/ssl/apache.key
+//
+
+Sudo a2ensite default-ssl.conf
+Sudo service httpd restart
+curl –k https://nodeip
+
+vi  /var/www/html/index.html
+
+// <html>
+<body>
+<h1>Hello world</h1>
+</body>
+</html> //
